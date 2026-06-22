@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Toddler Timer</title>
+  <meta name="description" content="A big, friendly visual countdown timer for little kids." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#FF8A4C" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Toddler Timer" />
+
+  <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <button class="gear" id="gearBtn" type="button" aria-label="Settings" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+
+    <h1 class="app__title">Toddler <span>Timer</span></h1>
+
+    <!-- The big draining bar -->
+    <div class="stage">
+      <div class="rectangle horizontal" id="rectangle">
+        <div class="fill" id="fill"></div>
+      </div>
+
+      <!-- Celebration text (sits over the stage, shown only when done) -->
+      <div class="done" id="done" hidden aria-live="polite">
+        <div class="done__text">All done!</div>
+      </div>
+    </div>
+
+    <!-- Time: editor (setup) OR big readout (running/paused/done) -->
+    <div class="time">
+      <div class="editor" id="editor">
+        <label class="editor__group">
+          <span class="editor__label">Minutes</span>
+          <input class="editor__input" id="minutesInput" type="number"
+                 inputmode="numeric" min="0" max="99" value="5"
+                 aria-label="Minutes" />
+        </label>
+        <span class="editor__colon" aria-hidden="true">:</span>
+        <label class="editor__group">
+          <span class="editor__label">Seconds</span>
+          <input class="editor__input" id="secondsInput" type="number"
+                 inputmode="numeric" min="0" max="59" value="00"
+                 aria-label="Seconds" />
+        </label>
+      </div>
+      <div class="readout" id="readout" role="timer" aria-live="off" hidden>05:00</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls" id="controls">
+      <button class="btn btn--start" id="startBtn" type="button">Start</button>
+      <button class="btn btn--stop"  id="stopBtn"  type="button" hidden>Stop</button>
+      <button class="btn btn--edit"  id="editBtn"  type="button" hidden>Edit</button>
+      <button class="btn btn--reset" id="resetBtn" type="button" hidden>Reset</button>
+    </div>
+  </div>
+
+  <!-- Settings dialog -->
+  <div class="settings" id="settings" hidden role="dialog" aria-modal="true"
+       aria-labelledby="settingsTitle">
+    <div class="settings__panel">
+      <h2 class="settings__title" id="settingsTitle">Settings</h2>
+
+      <label class="setting" for="hideNumbersToggle">
+        <span class="setting__text">
+          <span class="setting__name">Hide numbers while running</span>
+          <span class="setting__desc">Show only the draining bar once the timer starts.</span>
+        </span>
+        <input class="switch" type="checkbox" id="hideNumbersToggle" />
+      </label>
+
+      <button class="btn btn--reset settings__done" id="settingsClose" type="button">Done</button>
+    </div>
+  </div>
+
+  <!-- Confetti overlay (full screen, never blocks taps) -->
+  <canvas class="confetti" id="confetti"></canvas>
+
+  <!-- App logic (ES modules) -->
+  <script type="module" src="./js/app.js"></script>
+
+  <!-- Register the service worker so the app works offline / installs -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch((err) => {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

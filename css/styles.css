@@ -1,0 +1,390 @@
+/* styles.css
+   ==========================================================================
+   Toddler Timer — visual design.
+
+   Want to restyle? Almost everything you'd change lives in the :root token
+   block right below. Colours, the "juice" gradient, corner roundness and
+   shadows all flow from there.
+
+   v1.1 — UI scaled down slightly so all buttons fit without scrolling on
+   phones; added the gear button, settings dialog and toggle switch.
+   ========================================================================== */
+
+:root {
+  /* Surface */
+  --bg:        #FFF6EC;   /* warm off-white background */
+  --bg-2:      #FFE7D2;   /* gradient partner for the background */
+  --ink:       #4A3B33;   /* warm brown text */
+  --ink-soft:  #9B8B80;   /* muted labels */
+  --card:      #FFFFFF;
+
+  /* The tank (the big bar) */
+  --tank-bg:   #FCEFE0;   /* the empty part of the tank */
+  --frame:     #FFFFFF;   /* chunky frame around the tank */
+  --juice-1:   #FFC83D;   /* sunny  (far edge of the juice) */
+  --juice-2:   #FF8A4C;   /* orange (middle) */
+  --juice-3:   #FF5E7E;   /* pink   (anchored edge) */
+  --shine:     rgba(255, 255, 255, 0.55);
+
+  /* Buttons — a friendly, colour-coded set */
+  --start:     #2FBF71;
+  --stop:      #F4A52A;
+  --edit:      #8B7BE8;
+  --reset:     #4C9AFF;
+  --btn-text:  #FFFFFF;
+
+  /* Shape & depth */
+  --radius-lg: 30px;
+  --radius-md: 20px;
+  --radius-sm: 16px;
+  --shadow:    0 12px 28px rgba(74, 59, 51, 0.14);
+  --shadow-sm: 0 5px 14px rgba(74, 59, 51, 0.16);
+
+  --font: "Nunito", "Quicksand", ui-rounded, "SF Pro Rounded",
+          -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink);
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 100%);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- overall layout ------------------------------------------------------ */
+.app {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.6vh, 16px);
+  padding: max(10px, env(safe-area-inset-top)) 14px
+           max(10px, env(safe-area-inset-bottom));
+}
+
+.app__title {
+  margin: 2px 0 0;
+  font-size: clamp(1.25rem, 4.2vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.app__title span { color: var(--juice-2); }
+
+/* --- gear / settings button --------------------------------------------- */
+.gear {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  z-index: 30;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.gear:hover { color: var(--ink); }
+.gear:active { transform: rotate(40deg); }
+.gear:focus-visible {
+  outline: 3px solid rgba(74, 59, 51, 0.35);
+  outline-offset: 3px;
+}
+
+.stage {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+/* --- the tank (the draining bar) ----------------------------------------- */
+.rectangle {
+  position: relative;
+  overflow: hidden;
+  background: var(--tank-bg);
+  border: 9px solid var(--frame);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow),
+              inset 0 4px 12px rgba(74, 59, 51, 0.10);
+}
+
+.rectangle.horizontal {
+  width: min(86vw, 600px);
+  height: clamp(110px, 26vh, 240px);
+}
+.rectangle.vertical {
+  width: clamp(110px, 42vw, 260px);
+  height: min(52dvh, 460px);
+}
+
+/* The juice. Width/height are set from JS; the rest is style. */
+.fill {
+  position: absolute;
+  border-radius: 12px;
+}
+.rectangle.horizontal .fill {
+  top: 0; bottom: 0; left: 0;        /* pinned LEFT -> empties right→left */
+  height: 100%;
+  background: linear-gradient(90deg, var(--juice-3), var(--juice-2) 55%, var(--juice-1));
+}
+.rectangle.vertical .fill {
+  left: 0; right: 0; bottom: 0;       /* pinned BOTTOM -> empties top→bottom */
+  width: 100%;
+  background: linear-gradient(0deg, var(--juice-3), var(--juice-2) 55%, var(--juice-1));
+}
+
+/* Soft sheen across the juice for a liquid look. */
+.fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, var(--shine), transparent 45%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* --- time area (editor or big readout) ----------------------------------- */
+.time {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  min-height: clamp(64px, 10vh, 96px);
+}
+
+.readout {
+  font-size: clamp(2.4rem, 12vw, 4rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.editor {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.editor__group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.editor__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.editor__input {
+  width: clamp(88px, 26vw, 128px);
+  font-family: var(--font);
+  font-size: clamp(2rem, 10vw, 3.1rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--ink);
+  background: var(--card);
+  border: 3px solid #F0E2D4;
+  border-radius: var(--radius-md);
+  padding: 5px 4px;
+  box-shadow: var(--shadow-sm);
+}
+.editor__input:focus-visible {
+  outline: none;
+  border-color: var(--juice-2);
+}
+/* hide the number spinners for a cleaner look */
+.editor__input::-webkit-outer-spin-button,
+.editor__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.editor__input { -moz-appearance: textfield; appearance: textfield; }
+
+.editor__colon {
+  font-size: clamp(2rem, 10vw, 3.1rem);
+  font-weight: 800;
+  color: var(--ink-soft);
+  padding-bottom: 0.15em;
+}
+
+/* --- buttons ------------------------------------------------------------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  max-width: 460px;
+}
+.btn {
+  flex: 1 1 auto;
+  min-width: 96px;
+  min-height: 54px;
+  padding: 0 16px;
+  font-family: var(--font);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--btn-text);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.12s ease;
+}
+.btn:hover { filter: brightness(1.04); }
+.btn:active { transform: scale(0.96); }
+.btn:focus-visible {
+  outline: 4px solid rgba(74, 59, 51, 0.35);
+  outline-offset: 3px;
+}
+.btn--start { background: var(--start); }
+.btn--stop  { background: var(--stop); }
+.btn--edit  { background: var(--edit); }
+.btn--reset { background: var(--reset); }
+
+/* When the timer is done, the lone Reset button grows to fill the row. */
+.controls--done .btn--reset { flex-basis: 100%; min-height: 64px; font-size: 1.2rem; }
+
+/* --- settings dialog ----------------------------------------------------- */
+.settings {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(74, 59, 51, 0.45);
+  animation: fade-in 0.15s ease;
+}
+.settings__panel {
+  width: 100%;
+  max-width: 360px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.settings__title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+}
+.setting__text { display: flex; flex-direction: column; gap: 3px; }
+.setting__name { font-size: 1.02rem; font-weight: 700; color: var(--ink); }
+.setting__desc { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.3; }
+.settings__done { width: 100%; }
+
+/* toggle switch (a styled checkbox) */
+.switch {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 0 auto;
+  width: 56px;
+  height: 32px;
+  border-radius: 999px;
+  background: #E3D6C8;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease;
+}
+.switch:checked { background: var(--start); }
+.switch:checked::after { transform: translateX(24px); }
+.switch:focus-visible {
+  outline: 3px solid rgba(74, 59, 51, 0.35);
+  outline-offset: 2px;
+}
+
+/* --- celebration --------------------------------------------------------- */
+.confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+.done {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 40;
+}
+.done__text {
+  font-size: clamp(2.2rem, 11vw, 4.5rem);
+  font-weight: 900;
+  color: var(--juice-2);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.25em 0.7em;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  animation: pop-in 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) both,
+             gentle-bob 2.4s ease-in-out 0.5s infinite;
+}
+
+/* --- animations ---------------------------------------------------------- */
+@keyframes pop-in {
+  0%   { transform: scale(0.4) rotate(-6deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes gentle-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-9px); }
+  40%, 80% { transform: translateX(9px); }
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.editor--nudge { animation: nudge 0.4s ease; }
+
+/* --- accessibility: respect reduced motion ------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .btn, .gear, .switch, .switch::after { transition: none; }
+  .done__text { animation: pop-in 0.01s both; }
+  .editor--nudge { animation: none; }
+  .settings { animation: none; }
+}

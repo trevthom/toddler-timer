@@ -9,6 +9,9 @@
    v1.5 — bigger draining bar (+25%), more breathing room around the edges,
    and the show/hide-numbers control is now an eye toggle beside the numbers
    (the old gear menu and settings dialog were removed).
+
+   v1.6 — halved the vertical gaps between the title, the bar, and the
+   numbers/buttons so everything fits on a phone without scrolling.
    ========================================================================== */
 
 :root {
@@ -66,7 +69,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(10px, 1.8vh, 18px);
+  gap: clamp(5px, 0.9vh, 9px);
   padding: max(18px, env(safe-area-inset-top)) clamp(20px, 5vw, 34px)
            max(20px, env(safe-area-inset-bottom));
 }

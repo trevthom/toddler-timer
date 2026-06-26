@@ -6,8 +6,9 @@
    block right below. Colours, the "juice" gradient, corner roundness and
    shadows all flow from there.
 
-   v1.1 — UI scaled down slightly so all buttons fit without scrolling on
-   phones; added the gear button, settings dialog and toggle switch.
+   v1.5 — bigger draining bar (+25%), more breathing room around the edges,
+   and the show/hide-numbers control is now an eye toggle beside the numbers
+   (the old gear menu and settings dialog were removed).
    ========================================================================== */
 
 :root {
@@ -65,9 +66,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(8px, 1.6vh, 16px);
-  padding: max(10px, env(safe-area-inset-top)) 14px
-           max(10px, env(safe-area-inset-bottom));
+  gap: clamp(10px, 1.8vh, 18px);
+  padding: max(18px, env(safe-area-inset-top)) clamp(20px, 5vw, 34px)
+           max(20px, env(safe-area-inset-bottom));
 }
 
 .app__title {
@@ -78,31 +79,6 @@ body {
   color: var(--ink);
 }
 .app__title span { color: var(--juice-2); }
-
-/* --- gear / settings button --------------------------------------------- */
-.gear {
-  position: absolute;
-  top: max(8px, env(safe-area-inset-top));
-  right: max(8px, env(safe-area-inset-right));
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  color: var(--ink-soft);
-  background: rgba(255, 255, 255, 0.7);
-  border: none;
-  border-radius: 50%;
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  z-index: 30;
-  transition: transform 0.15s ease, color 0.15s ease;
-}
-.gear:hover { color: var(--ink); }
-.gear:active { transform: rotate(40deg); }
-.gear:focus-visible {
-  outline: 3px solid rgba(74, 59, 51, 0.35);
-  outline-offset: 3px;
-}
 
 .stage {
   flex: 1 1 auto;
@@ -125,12 +101,12 @@ body {
 }
 
 .rectangle.horizontal {
-  width: min(86vw, 600px);
-  height: clamp(110px, 26vh, 240px);
+  width: min(100%, 750px);
+  height: clamp(140px, 32vh, 300px);
 }
 .rectangle.vertical {
-  width: clamp(110px, 42vw, 260px);
-  height: min(52dvh, 460px);
+  width: clamp(140px, 52vw, 325px);
+  height: min(64dvh, 575px);
 }
 
 /* The juice. Width/height are set from JS; the rest is style. */
@@ -160,13 +136,41 @@ body {
   pointer-events: none;
 }
 
-/* --- time area (editor or big readout) ----------------------------------- */
+/* --- time area (editor or big readout) + the show/hide eye --------------- */
 .time {
   width: 100%;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 3vw, 18px);
   min-height: clamp(64px, 10vh, 96px);
 }
+
+/* eye toggle, sits right next to the numbers */
+.eye {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.1s ease, color 0.15s ease;
+}
+.eye:hover { color: var(--ink); }
+.eye:active { transform: scale(0.92); }
+.eye:focus-visible {
+  outline: 3px solid rgba(74, 59, 51, 0.35);
+  outline-offset: 3px;
+}
+.eye__off { display: none; }
+.eye.is-hidden { color: var(--juice-2); }       /* tinted when set to hide */
+.eye.is-hidden .eye__on { display: none; }
+.eye.is-hidden .eye__off { display: block; }
 
 .readout {
   font-size: clamp(2.4rem, 12vw, 4rem);
@@ -263,78 +267,6 @@ body {
 /* When the timer is done, the lone Reset button grows to fill the row. */
 .controls--done .btn--reset { flex-basis: 100%; min-height: 64px; font-size: 1.2rem; }
 
-/* --- settings dialog ----------------------------------------------------- */
-.settings {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: rgba(74, 59, 51, 0.45);
-  animation: fade-in 0.15s ease;
-}
-.settings__panel {
-  width: 100%;
-  max-width: 360px;
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.settings__title {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--ink);
-}
-.setting {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  cursor: pointer;
-}
-.setting__text { display: flex; flex-direction: column; gap: 3px; }
-.setting__name { font-size: 1.02rem; font-weight: 700; color: var(--ink); }
-.setting__desc { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.3; }
-.settings__done { width: 100%; }
-
-/* toggle switch (a styled checkbox) */
-.switch {
-  appearance: none;
-  -webkit-appearance: none;
-  flex: 0 0 auto;
-  width: 56px;
-  height: 32px;
-  border-radius: 999px;
-  background: #E3D6C8;
-  position: relative;
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-.switch::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.15s ease;
-}
-.switch:checked { background: var(--start); }
-.switch:checked::after { transform: translateX(24px); }
-.switch:focus-visible {
-  outline: 3px solid rgba(74, 59, 51, 0.35);
-  outline-offset: 2px;
-}
-
 /* --- celebration --------------------------------------------------------- */
 .confetti {
   position: fixed;
@@ -378,13 +310,11 @@ body {
   20%, 60% { transform: translateX(-9px); }
   40%, 80% { transform: translateX(9px); }
 }
-@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 .editor--nudge { animation: nudge 0.4s ease; }
 
 /* --- accessibility: respect reduced motion ------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .btn, .gear, .switch, .switch::after { transition: none; }
+  .btn, .eye { transition: none; }
   .done__text { animation: pop-in 0.01s both; }
   .editor--nudge { animation: none; }
-  .settings { animation: none; }
 }

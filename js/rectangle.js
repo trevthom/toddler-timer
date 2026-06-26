@@ -18,64 +18,71 @@
 // horizontal even if its window happens to be taller than it is wide.
 // ---------------------------------------------------------------------------
 
-const mqMobile = window.matchMedia('(hover: none) and (pointer: coarse)');
-const mqPortrait = window.matchMedia('(orientation: portrait)');
+(function (TT) {
+  'use strict';
 
-export function isVerticalLayout() {
-  return mqMobile.matches && mqPortrait.matches;
-}
+  const mqMobile = window.matchMedia('(hover: none) and (pointer: coarse)');
+  const mqPortrait = window.matchMedia('(orientation: portrait)');
 
-export class Rectangle {
-  /**
-   * @param {HTMLElement} frameEl  the bordered container
-   * @param {HTMLElement} fillEl   the coloured fill inside it
-   */
-  constructor(frameEl, fillEl) {
-    this.frameEl = frameEl;
-    this.fillEl = fillEl;
-    this.fraction = 1;          // 1 = full, 0 = empty
-    this._vertical = isVerticalLayout();
-    this._applyOrientation();
-
-    // Re-evaluate whenever the device is rotated or the window resized.
-    const onChange = () => this.refreshOrientation();
-    mqMobile.addEventListener('change', onChange);
-    mqPortrait.addEventListener('change', onChange);
-    window.addEventListener('resize', onChange);
-    window.addEventListener('orientationchange', onChange);
+  function isVerticalLayout() {
+    return mqMobile.matches && mqPortrait.matches;
   }
 
-  /** Set how full the bar is. fraction: 1 = full, 0 = empty. */
-  setFraction(fraction) {
-    this.fraction = Math.max(0, Math.min(1, fraction));
-    this._render();
-  }
-
-  /** Re-check orientation; re-render the fill to match if it changed. */
-  refreshOrientation() {
-    const next = isVerticalLayout();
-    if (next !== this._vertical) {
-      this._vertical = next;
+  class Rectangle {
+    /**
+     * @param {HTMLElement} frameEl  the bordered container
+     * @param {HTMLElement} fillEl   the coloured fill inside it
+     */
+    constructor(frameEl, fillEl) {
+      this.frameEl = frameEl;
+      this.fillEl = fillEl;
+      this.fraction = 1;          // 1 = full, 0 = empty
+      this._vertical = isVerticalLayout();
       this._applyOrientation();
+
+      // Re-evaluate whenever the device is rotated or the window resized.
+      const onChange = () => this.refreshOrientation();
+      mqMobile.addEventListener('change', onChange);
+      mqPortrait.addEventListener('change', onChange);
+      window.addEventListener('resize', onChange);
+      window.addEventListener('orientationchange', onChange);
     }
-    this._render();
+
+    /** Set how full the bar is. fraction: 1 = full, 0 = empty. */
+    setFraction(fraction) {
+      this.fraction = Math.max(0, Math.min(1, fraction));
+      this._render();
+    }
+
+    /** Re-check orientation; re-render the fill to match if it changed. */
+    refreshOrientation() {
+      const next = isVerticalLayout();
+      if (next !== this._vertical) {
+        this._vertical = next;
+        this._applyOrientation();
+      }
+      this._render();
+    }
+
+    _applyOrientation() {
+      this.frameEl.classList.toggle('vertical', this._vertical);
+      this.frameEl.classList.toggle('horizontal', !this._vertical);
+    }
+
+    _render() {
+      const pct = this.fraction * 100;
+      if (this._vertical) {
+        // pinned to the bottom (see CSS); height shrinks => top empties first
+        this.fillEl.style.width = '100%';
+        this.fillEl.style.height = pct + '%';
+      } else {
+        // pinned to the left (see CSS); width shrinks => right empties first
+        this.fillEl.style.height = '100%';
+        this.fillEl.style.width = pct + '%';
+      }
+    }
   }
 
-  _applyOrientation() {
-    this.frameEl.classList.toggle('vertical', this._vertical);
-    this.frameEl.classList.toggle('horizontal', !this._vertical);
-  }
-
-  _render() {
-    const pct = this.fraction * 100;
-    if (this._vertical) {
-      // pinned to the bottom (see CSS); height shrinks => top empties first
-      this.fillEl.style.width = '100%';
-      this.fillEl.style.height = pct + '%';
-    } else {
-      // pinned to the left (see CSS); width shrinks => right empties first
-      this.fillEl.style.height = '100%';
-      this.fillEl.style.width = pct + '%';
-    }
-  }
-}
+  TT.isVerticalLayout = isVerticalLayout;
+  TT.Rectangle = Rectangle;
+})(window.TT = window.TT || {});

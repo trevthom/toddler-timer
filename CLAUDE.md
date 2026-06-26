@@ -21,23 +21,33 @@ offline, and the code is split into small files so it's easy to change.
 
 ## 2. Running and installing it
 
-It is a static site, but it uses **ES modules** and a **service worker**, both
-of which require it to be served over `http://` or `https://` — opening
-`index.html` directly with `file://` will *not* work.
+**Just open `index.html`.** Double-click it (or drag it into a browser) on a
+computer, or open the file in a mobile browser. No server is required — the
+scripts load as plain `<script>` files, which browsers allow straight from the
+`file://` protocol.
 
-Quickest local run (from the project folder):
+Everything the child uses works this way: setting the time, the draining bar,
+the countdown, the chime, the confetti and "All done!", and the eye toggle
+that shows/hides the numbers.
+
+You only need to *serve* the folder if you want the two extras that browsers
+restrict to a secure context (HTTPS or `localhost`):
+
+- **Installing it as an app** ("Add to Home Screen" / "Install app").
+- **Offline caching via the service worker** (irrelevant when you've opened a
+  local file — those files are already on the device).
+
+To serve it for those cases, from the project folder:
 
 ```bash
 python3 -m http.server 8000
-# then open http://localhost:8000 in a browser
+# then open http://localhost:8000
 ```
 
 Any static server works (`npx serve`, `php -S`, VS Code "Live Server", etc.).
-
-**To install as an app:** open it in a mobile browser and choose "Add to Home
-Screen" (iOS Safari) or "Install app" (Android Chrome). On desktop Chrome/Edge
-an install icon appears in the address bar. For installability to work it must
-be served over HTTPS (localhost counts as secure for testing).
+The "Hide numbers" preference also persists most reliably when served (some
+browsers limit storage for pages opened directly from a file; the app falls
+back to remembering it for the current session).
 
 ---
 
@@ -159,12 +169,13 @@ The pinning is done in CSS (`.rectangle.horizontal .fill` /
   (and its style/animation in `css/styles.css`).
 - **Change button labels or which buttons appear when** → labels in
   `index.html`; visibility logic in `render()` in `js/app.js`.
-- **Settings (the gear menu)** → the dialog markup is in `index.html`
-  (`#settings`), styling under `/* settings dialog */` in `css/styles.css`, and
-  the open/close + toggle wiring in `js/app.js`. Preferences are stored in
-  `js/settings.js`; add a new one by giving it a default in `DEFAULTS` there.
-  The "hide numbers while running" behaviour is the `hideNumbers` check in
-  `render()`.
+- **Show/hide numbers (the eye toggle)** → the button (`#eyeToggle`, with two
+  inline SVGs) sits in the time row in `index.html`; styling is `.eye` in
+  `css/styles.css`; the click handler and `updateEyeToggle()` are in `js/app.js`.
+  The preference is stored in `js/settings.js` (`hideNumbersWhileRunning`), and
+  the actual hiding is the `hideNumbers` check in `render()`.
+- **Bar size** → `.rectangle.horizontal` / `.rectangle.vertical` in
+  `css/styles.css`. **Edge spacing** → the `.app` `padding`.
 - **Redraw the app icon** → edit colours/shape in `icons/make_icons.py`, then
   `python3 icons/make_icons.py`.
 
@@ -172,8 +183,12 @@ The pinning is done in CSS (`.rectangle.horizontal .fill` /
 
 ## 8. Conventions & gotchas
 
-- **Modules need a server.** ES modules and the service worker don't run from
-  `file://`. Always serve the folder (see section 2).
+- **Opens directly — no server needed.** The JS files are plain `<script>`s
+  (not ES modules), so the app runs from `file://`. They share a tiny global
+  namespace, `window.TT`, and **load order matters**: `index.html` loads
+  `config → timer → rectangle → alarm → confetti → settings → app`, with
+  `app.js` last because it uses the rest. If you add a new file, add a
+  `<script>` for it before `app.js`.
 - **Bump the cache version when you edit files.** In `service-worker.js`,
   change `CACHE_VERSION` (e.g. `...-v1` → `...-v2`) whenever you change a cached
   file, and add any *new* file to the `APP_SHELL` list. Otherwise the browser

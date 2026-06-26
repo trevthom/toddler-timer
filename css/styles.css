@@ -12,6 +12,10 @@
 
    v1.6 — halved the vertical gaps between the title, the bar, and the
    numbers/buttons so everything fits on a phone without scrolling.
+
+   v1.7 — the real fix for the gaps: the .stage no longer grows to fill the
+   screen (that growth, not the gap, was padding space around the bar). The
+   whole stack is now centered with very small gaps between items.
    ========================================================================== */
 
 :root {
@@ -69,7 +73,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(5px, 0.9vh, 9px);
+  justify-content: safe center;   /* center the whole stack; leftover space goes outside it */
+  gap: clamp(3px, 0.7vh, 7px);    /* very small gaps between title / bar / numbers / buttons */
   padding: max(18px, env(safe-area-inset-top)) clamp(20px, 5vw, 34px)
            max(20px, env(safe-area-inset-bottom));
 }
@@ -84,7 +89,7 @@ body {
 .app__title span { color: var(--juice-2); }
 
 .stage {
-  flex: 1 1 auto;
+  flex: 0 0 auto;          /* don't grow — the stage hugs the bar, no padding around it */
   width: 100%;
   min-height: 0;
   display: grid;

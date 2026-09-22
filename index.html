@@ -36,6 +36,15 @@
     <!-- Time: editor (setup) OR big readout (running/paused/done),
          with the show/hide-numbers toggle right beside it. -->
     <div class="time">
+      <!-- Mode switch: count down an amount of time, or to a time of day.
+           Shown only while editing (setup). -->
+      <div class="mode" id="modeSwitch" role="tablist" aria-label="Timer mode">
+        <button class="mode__btn" id="modeTimer" type="button" role="tab"
+                aria-selected="true">Timer</button>
+        <button class="mode__btn" id="modeClock" type="button" role="tab"
+                aria-selected="false">Clock</button>
+      </div>
+
       <div class="editor" id="editor">
         <label class="editor__group">
           <span class="editor__label">Minutes</span>
@@ -49,6 +58,13 @@
           <input class="editor__input" id="secondsInput" type="number"
                  inputmode="numeric" min="0" max="59" value="00"
                  aria-label="Seconds" />
+        </label>
+
+        <!-- Time-of-day picker, shown only in Clock mode. -->
+        <label class="editor__group editor__group--clock" id="clockGroup">
+          <span class="editor__label">Until</span>
+          <input class="editor__input editor__input--clock" id="clockInput" type="time"
+                 value="12:00" aria-label="Time of day to count down to" />
         </label>
       </div>
       <div class="readout" id="readout" role="timer" aria-live="off" hidden>05:00</div>

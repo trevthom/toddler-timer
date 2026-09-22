@@ -7,7 +7,7 @@
 // browsers may keep serving the old version. Add new files to APP_SHELL too.
 // ---------------------------------------------------------------------------
 
-const CACHE_VERSION = 'toddler-timer-v8';
+const CACHE_VERSION = 'toddler-timer-v9';
 
 const APP_SHELL = [
   './',

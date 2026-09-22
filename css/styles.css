@@ -265,6 +265,16 @@ body {
   width: clamp(120px, 32vw, 168px);
 }
 
+/* live hint under the clock picker: how much time Start will load */
+.clock-hint {
+  min-height: 1.2em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.editor__group--clock { gap: 8px; }
+
 .editor__colon {
   font-size: clamp(2rem, 10vw, 3.1rem);
   font-weight: 800;

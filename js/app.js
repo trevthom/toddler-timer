@@ -47,6 +47,10 @@
   const modeClockBtn = el('modeClock');
   const clockGroup = el('clockGroup');
   const clockInput = el('clockInput');
+  const minutesGroup = el('minutesGroup');
+  const secondsGroup = el('secondsGroup');
+  const colonEl = el('editorColon');
+  const clockHint = el('clockHint');
 
   // --- build the pieces ------------------------------------------------------
   const rectangle = new Rectangle(rectangleEl, fillEl);
@@ -91,10 +95,13 @@
     modeClockBtn.classList.toggle('is-active', next === 'clock');
     modeTimerBtn.setAttribute('aria-selected', String(next === 'timer'));
     modeClockBtn.setAttribute('aria-selected', String(next === 'clock'));
-    // The minutes/seconds fields only make sense in timer mode.
-    minutesInput.disabled = next !== 'timer';
-    secondsInput.disabled = next !== 'timer';
-    clockGroup.hidden = next !== 'clock';
+    // Timer mode: minutes/seconds fields. Clock mode: ONLY the time picker.
+    const isTimer = next === 'timer';
+    minutesGroup.hidden = !isTimer;
+    colonEl.hidden = !isTimer;
+    secondsGroup.hidden = !isTimer;
+    clockGroup.hidden = isTimer;
+    if (isTimer) minutesInput.disabled = secondsInput.disabled = false;
   }
 
   // Time of day selected in the clock picker, as minutes since midnight.
@@ -150,6 +157,7 @@
     modeSwitchEl.hidden = !editing;   // the Timer/Clock switch only shows while editing
     readoutEl.hidden = editing || hideNumbers;
     if (!editing && !hideNumbers) readoutEl.textContent = formatTime(timer.remainingMs);
+    if (editing) updateClockHint();
 
     // Button visibility.
     show(startBtn, s === STATE.SETUP || s === STATE.PAUSED);
@@ -245,6 +253,23 @@
     clockInput.focus();
   }
 
+  // Live hint under the clock picker: how much time Start will load right now.
+  function updateClockHint() {
+    if (mode() !== 'clock') { clockHint.hidden = true; return; }
+    const mins = readClockMinutes();
+    if (mins == null) {
+      clockHint.textContent = 'Pick a time of day, then press Start.';
+      return;
+    }
+    clockHint.hidden = false;
+    clockHint.textContent = 'Start counts down ' + formatTime(msUntilTimeOfDay(mins)) + ' from now.';
+  }
+
+  // Keep the hint live while editing in clock mode.
+  setInterval(() => {
+    if (timer.state === STATE.SETUP && mode() === 'clock' && !clockHint.hidden) updateClockHint();
+  }, 1000);
+
   // --- show/hide-numbers eye toggle ------------------------------------------
   // Reflects the current setting: eye open = numbers show while running;
   // eye with a slash = numbers hidden while running.
@@ -293,8 +318,12 @@
     // Restore the last time of day used, if there was one.
     const saved = settings.get('lastClockTime');
     if (saved != null) writeClockMinutes(saved);
+    updateClockHint();
     clockInput.focus();
   });
+
+  // Update the hint whenever the chosen time changes.
+  clockInput.addEventListener('input', updateClockHint);
 
   // Re-release the wake lock if the tab is hidden, re-acquire when visible+running.
   document.addEventListener('visibilitychange', () => {

@@ -126,6 +126,20 @@ Transitions:
 The single function `render()` in `app.js` makes the screen match the current
 state — change button visibility rules there, in one place.
 
+### Countdown modes: Timer vs. Clock
+
+The setup screen has a **Timer / Clock** switch (`.mode` in `index.html`, wired
+in `app.js`):
+
+- **Timer** (default) — count down an amount of time, set with the minutes and
+  seconds fields. This is the original behaviour.
+- **Clock** — count down *to* a time of day, set with the `#clockInput`
+  `<input type="time">` picker. Start computes the milliseconds until that time
+  (rolling to tomorrow if it has already passed today, so 23:50 → 00:10 works)
+  and then drains exactly like a normal countdown. The chosen time is saved in
+  `js/settings.js` (`lastClockTime`) and the mode choice itself in
+  (`timerMode`), so both persist between sessions.
+
 ---
 
 ## 6. Orientation & drain direction (in `rectangle.js` + `css/styles.css`)
@@ -169,6 +183,10 @@ The pinning is done in CSS (`.rectangle.horizontal .fill` /
   (and its style/animation in `css/styles.css`).
 - **Change button labels or which buttons appear when** → labels in
   `index.html`; visibility logic in `render()` in `js/app.js`.
+- **Timer vs. Clock mode** → the switch is `#modeSwitch` / `#clockInput` in
+  `index.html`; the logic (`setMode`, `msUntilTimeOfDay`) is in `js/app.js`;
+  the persisted preferences (`timerMode`, `lastClockTime`) are in
+  `js/settings.js`; styling is `.mode` in `css/styles.css`.
 - **Show/hide numbers (the eye toggle)** → the button (`#eyeToggle`, with two
   inline SVGs) sits in the time row in `index.html`; styling is `.eye` in
   `css/styles.css`; the click handler and `updateEyeToggle()` are in `js/app.js`.

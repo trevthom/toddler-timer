@@ -155,6 +155,36 @@ body {
 }
 
 /* eye toggle, sits right next to the numbers */
+.mode {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
+}
+.mode__btn {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.mode__btn:hover { color: var(--ink); }
+.mode__btn.is-active {
+  color: var(--btn-text);
+  background: var(--juice-2);
+}
+.mode__btn:focus-visible {
+  outline: 3px solid rgba(74, 59, 51, 0.35);
+  outline-offset: 2px;
+}
+
 .eye {
   flex: 0 0 auto;
   width: 48px;
@@ -229,6 +259,11 @@ body {
 .editor__input::-webkit-outer-spin-button,
 .editor__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .editor__input { -moz-appearance: textfield; appearance: textfield; }
+
+/* the time-of-day picker (clock mode) */
+.editor__input--clock {
+  width: clamp(120px, 32vw, 168px);
+}
 
 .editor__colon {
   font-size: clamp(2rem, 10vw, 3.1rem);
@@ -320,9 +355,14 @@ body {
 }
 .editor--nudge { animation: nudge 0.4s ease; }
 
+/* --- reduced-motion + small-screen tweaks --------------------------------- */
+@media (max-width: 480px) {
+  .editor__input--clock { width: clamp(100px, 28vw, 140px); }
+}
+
 /* --- accessibility: respect reduced motion ------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .btn, .eye { transition: none; }
+  .btn, .eye, .mode__btn { transition: none; }
   .done__text { animation: pop-in 0.01s both; }
   .editor--nudge { animation: none; }
 }

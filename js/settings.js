@@ -20,6 +20,14 @@
     // When on, the mm:ss readout is hidden once the timer is started, so only
     // the draining bar is visible.
     hideNumbersWhileRunning: false,
+
+    // How the countdown is set: 'timer' counts down an amount of time
+    // (minutes/seconds); 'clock' counts down TO a time of day.
+    timerMode: 'timer',
+
+    // Last time of day used in clock mode (minutes since midnight), so the
+    // picker comes back with the same choice next session.
+    lastClockTime: null,
   };
 
   function load() {

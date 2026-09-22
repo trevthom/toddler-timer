@@ -46,25 +46,27 @@
       </div>
 
       <div class="editor" id="editor">
-        <label class="editor__group">
+        <label class="editor__group" id="minutesGroup">
           <span class="editor__label">Minutes</span>
           <input class="editor__input" id="minutesInput" type="number"
                  inputmode="numeric" min="0" max="99" value="5"
                  aria-label="Minutes" />
         </label>
-        <span class="editor__colon" aria-hidden="true">:</span>
-        <label class="editor__group">
+        <span class="editor__colon" id="editorColon" aria-hidden="true">:</span>
+        <label class="editor__group" id="secondsGroup">
           <span class="editor__label">Seconds</span>
           <input class="editor__input" id="secondsInput" type="number"
                  inputmode="numeric" min="0" max="59" value="00"
                  aria-label="Seconds" />
         </label>
 
-        <!-- Time-of-day picker, shown only in Clock mode. -->
+        <!-- Time-of-day picker, shown only in Clock mode. The hint below it
+             shows how much time Start will load right now. -->
         <label class="editor__group editor__group--clock" id="clockGroup">
           <span class="editor__label">Until</span>
           <input class="editor__input editor__input--clock" id="clockInput" type="time"
                  value="12:00" aria-label="Time of day to count down to" />
+          <span class="clock-hint" id="clockHint" aria-live="polite"></span>
         </label>
       </div>
       <div class="readout" id="readout" role="timer" aria-live="off" hidden>05:00</div>

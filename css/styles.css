@@ -260,9 +260,11 @@ body {
 .editor__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .editor__input { -moz-appearance: textfield; appearance: textfield; }
 
-/* the time-of-day picker (clock mode) */
+/* the time-of-day picker (clock mode): sized so all three segments
+   (hours, minutes, AM/PM) are visible at once without scrolling */
 .editor__input--clock {
-  width: clamp(120px, 32vw, 168px);
+  width: clamp(210px, 60vw, 300px);
+  font-size: clamp(1.5rem, 7.5vw, 2.2rem);
 }
 
 /* live hint under the clock picker: how much time Start will load */
@@ -367,7 +369,9 @@ body {
 
 /* --- reduced-motion + small-screen tweaks --------------------------------- */
 @media (max-width: 480px) {
-  .editor__input--clock { width: clamp(100px, 28vw, 140px); }
+  /* keep all three clock segments (h, mm, AM/PM) visible on small screens,
+     leaving room for the eye toggle beside the editor */
+  .editor__input--clock { width: min(62vw, 300px); }
 }
 
 /* --- accessibility: respect reduced motion ------------------------------- */
